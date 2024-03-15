@@ -5,100 +5,61 @@ describe("UniswapTest", function () {
   describe("Deployment", function () {
     let uniswapContract;
     let accounts;
-    let tokenA;
-    let tokenB;
-    let tokenContractA;
-    let tokenContractB;
+    let DAI = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+    let WETH9 = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+
+    let DAIContract;
+    let WETH9Contract;
 
     before(async () => {
       accounts = await ethers.getSigners();
       const UniswapV3 = await ethers.getContractFactory('UniSwapV3');
-      uniswapContract = await UniswapV3.deploy("0xE592427A0AEce92De3Edee1F18E0157C05861564");
+      uniswapContract = await UniswapV3.deploy();
       await uniswapContract.deployed();
-      tokenA = await uniswapContract.tokenA();
-      tokenB = await uniswapContract.tokenB();
-      tokenContractA = await ethers.getContractAt('UERC20', tokenA);
-      tokenContractB = await ethers.getContractAt('UERC20', tokenB);
+
+      DAIContract = await ethers.getContractAt('IERC20', DAI);
+      WETH9Contract = await ethers.getContractAt('IWETH', WETH9);
     })
 
     it("Checking All the Values", async function () {
-      expect(tokenA).not.equal(tokenB);
+      expect(DAIContract).not.equal(WETH9Contract);
     });
 
-    it("Checking the balance of Contract for Token A", async function () {
-      const balance = await tokenContractA.balanceOf(uniswapContract.address);
-      expect(balance.toNumber()).to.equal(10e12);
-    });
+    it("Checking for Swap in WETH/DAI", async function () {
 
-    it("Checking the balance of Contract for Token B", async function () {
-      const balance = await tokenContractB.balanceOf(uniswapContract.address);
-      expect(balance.toNumber()).to.equal(10e12);
-    });
+      const amount = 10n ** 18n;
+      await WETH9Contract.deposit({ value: amount });
+      await WETH9Contract.approve(uniswapContract.address, amount);
+      await uniswapContract.swapTokenInputSingle(1000000, 1, 0);
+    })
+
+    it("Checking for Swap in WETH/DAI using fixed Output", async function () {
+
+      const amountInMax = 10n ** 18n;
+      const daiOut = 100n * 10n ** 18n;
+      await WETH9Contract.deposit({ value: amountInMax });
+      await WETH9Contract.approve(uniswapContract.address, amountInMax);
+      await uniswapContract.swapTokenOutputSingle(1, 0, daiOut, amountInMax);
+
+    })
+
+    it("Checking for Swap in DAI/WETH", async function () {
+
+      const amount = 100n * 10n ** 18n;
+      await DAIContract.deposit({ value: amount });
+      await DAIContract.approve(uniswapContract.address, amount);
+      await uniswapContract.swapTokenInputSingle(100000, 0, 1);
+    })
+
+    it("Checking for Swap in DAI/WETH using fixed Output", async function () {
+
+      const amountInMax = 100n * 10n ** 18n;
+      const wethOut = 10n ** 18n;
+      await DAIContract.deposit({ value: amountInMax });
+      await DAIContract.approve(uniswapContract.address, amountInMax);
+      await uniswapContract.swapTokenOutputSingle(0, 1, wethOut, amountInMax);
+
+    })
+
   });
-
-  // describe("Withdrawals", function () {
-  //   describe("Validations", function () {
-  //     it("Should revert with the right error if called too soon", async function () {
-  //       const { lock } = await loadFixture(deployOneYearLockFixture);
-
-  //       await expect(lock.withdraw()).to.be.revertedWith(
-  //         "You can't withdraw yet"
-  //       );
-  //     });
-
-  //     it("Should revert with the right error if called from another account", async function () {
-  //       const { lock, unlockTime, otherAccount } = await loadFixture(
-  //         deployOneYearLockFixture
-  //       );
-
-  //       // We can increase the time in Hardhat Network
-  //       await time.increaseTo(unlockTime);
-
-  //       // We use lock.connect() to send a transaction from another account
-  //       await expect(lock.connect(otherAccount).withdraw()).to.be.revertedWith(
-  //         "You aren't the owner"
-  //       );
-  //     });
-
-  //     it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-  //       const { lock, unlockTime } = await loadFixture(
-  //         deployOneYearLockFixture
-  //       );
-
-  //       // Transactions are sent using the first signer by default
-  //       await time.increaseTo(unlockTime);
-
-  //       await expect(lock.withdraw()).not.to.be.reverted;
-  //     });
-  //   });
-
-  //   describe("Events", function () {
-  //     it("Should emit an event on withdrawals", async function () {
-  //       const { lock, unlockTime, lockedAmount } = await loadFixture(
-  //         deployOneYearLockFixture
-  //       );
-
-  //       await time.increaseTo(unlockTime);
-
-  //       await expect(lock.withdraw())
-  //         .to.emit(lock, "Withdrawal")
-  //         .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-  //     });
-  //   });
-
-  //   describe("Transfers", function () {
-  //     it("Should transfer the funds to the owner", async function () {
-  //       const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
-  //         deployOneYearLockFixture
-  //       );
-
-  //       await time.increaseTo(unlockTime);
-
-  //       await expect(lock.withdraw()).to.changeEtherBalances(
-  //         [owner, lock],
-  //         [lockedAmount, -lockedAmount]
-  //       );
-  //     });
-  //   });
-  // });
 });
