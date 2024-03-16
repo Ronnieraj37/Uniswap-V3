@@ -32,6 +32,10 @@ function App() {
           <div className="App">
             <ConnectButton />
             <Swap />
+            <div className=' flex flex-col  text-sm mt-20'>
+              <a href='https://sepolia.etherscan.io/address/0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14#writeContract' rel="noopener" target="_blank">Mint WETH </a>
+              <a href='https://sepolia.etherscan.io/address/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984#writeContract' rel="noopener" target="_blank">Mint Uniswap </a>
+            </div>
           </div>
         </RainbowKitProvider>
       </QueryClientProvider>

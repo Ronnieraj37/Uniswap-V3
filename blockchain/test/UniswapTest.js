@@ -26,7 +26,7 @@ describe("UniswapTest", function () {
       expect(UniswapContract).not.equal(WETH9Contract);
     });
 
-    it("Checking for Swap in WETH/DAI", async function () {
+    it("Checking for Swap in WETH/uniswap", async function () {
 
       const amount = 10n ** 18n;
       await WETH9Contract.deposit({ value: amount });
@@ -34,17 +34,17 @@ describe("UniswapTest", function () {
       await uniswapContract.swapTokenInputSingle(1000000, 0, 1);
     })
 
-    it("Checking for Swap in WETH/DAI using fixed Output", async function () {
+    it("Checking for Swap in WETH/uniswap using fixed Output", async function () {
 
       const amountInMax = 10n ** 18n;
-      const daiOut = 100n * 10n ** 18n;
+      const uniswapOut = 100n * 10n ** 18n;
       await WETH9Contract.deposit({ value: amountInMax });
       await WETH9Contract.approve(uniswapContract.address, amountInMax);
-      await uniswapContract.swapTokenOutputSingle(0, 1, daiOut, amountInMax);
+      await uniswapContract.swapTokenOutputSingle(0, 1, uniswapOut, amountInMax);
 
     })
 
-    it("Checking for Swap in DAI/WETH", async function () {
+    it("Checking for Swap in uniswap/WETH", async function () {
 
       const amount = 100n * 10n ** 18n;
       await UniswapContract.mint(accounts[0].address, amount);
@@ -52,7 +52,7 @@ describe("UniswapTest", function () {
       await uniswapContract.swapTokenInputSingle(100000, 1, 0);
     })
 
-    it("Checking for Swap in DAI/WETH using fixed Output", async function () {
+    it("Checking for Swap in uniswap/WETH using fixed Output", async function () {
 
       const amountInMax = 100n * 10n ** 18n;
       const wethOut = 10n ** 18n;
