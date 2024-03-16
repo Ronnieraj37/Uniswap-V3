@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-
+import "@uniswap/swap-router-contracts/contracts/interfaces/ISwapRouter02.sol";
+import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 contract UniSwapV3 {
-    ISwapRouter public swapRouter =
-        ISwapRouter(0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E);
+    ISwapRouter02 public swapRouter =
+        ISwapRouter02(0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E);
 
     address[] public erc20;
 
@@ -25,8 +25,8 @@ contract UniSwapV3 {
         //     0x7AFeBBB46fDb47ed17b22ed075Cde2447694fB9e //Ocean
         // ];
         erc20 = [
-            0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa, //Wrapped Ether
-            0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889 //Wrapped Matic
+            0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14, //Wrapped Ether
+            0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984 //Uniswap
         ];
     }
     function swapTokenInputSingle(
@@ -46,13 +46,12 @@ contract UniSwapV3 {
 
         TransferHelper.safeApprove(erc20[input], address(swapRouter), amountIn);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+        IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter
             .ExactInputSingleParams({
                 tokenIn: erc20[input],
                 tokenOut: erc20[output],
                 fee: 3000,
                 recipient: msg.sender,
-                deadline: block.timestamp,
                 amountIn: amountIn,
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
@@ -83,13 +82,12 @@ contract UniSwapV3 {
             amountInMaximum
         );
 
-        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
+        IV3SwapRouter.ExactOutputSingleParams memory params = IV3SwapRouter
             .ExactOutputSingleParams({
                 tokenIn: erc20[input],
                 tokenOut: erc20[output],
                 fee: 3000,
                 recipient: msg.sender,
-                deadline: block.timestamp,
                 amountOut: amountOut,
                 amountInMaximum: amountInMaximum,
                 sqrtPriceLimitX96: 0

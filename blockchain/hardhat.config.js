@@ -10,8 +10,8 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://eth-mainnet.g.alchemy.com/v2/qkq_OWrPbWd3F-tgQWcERygouzqOP-Fn",
-        // url: "https://eth-sepolia.g.alchemy.com/v2/TEHTMtORR5fyS4pBP9S9Go2eoR_hc-XH"
+        // url: "https://eth-mainnet.g.alchemy.com/v2/qkq_OWrPbWd3F-tgQWcERygouzqOP-Fn",
+        url: "https://eth-sepolia.g.alchemy.com/v2/TEHTMtORR5fyS4pBP9S9Go2eoR_hc-XH"
       }
     },
     sepolia: {
