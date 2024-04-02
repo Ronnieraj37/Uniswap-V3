@@ -49,16 +49,25 @@ function Swap() {
     // docs of eslint
     // const xyz = 10n ** 18n;
 
-    const submitSwap = async () => {
+    const approveSwap = async () => {
         setclear(false);
         try {
             if (typeof Value !== 'number') throw new Error('Value must be a number');
-            writeContractApprove({
-                address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
-                abi: IWethABI,
-                functionName: 'approve',
-                args: ["0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C", BigInt(Value)],
-            });
+            if (tokenIn === 0) {
+                writeContractApprove({
+                    address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
+                    abi: IWethABI,
+                    functionName: 'approve',
+                    args: ["0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C", BigInt(Value)],
+                });
+            } else {
+                writeContractApprove({
+                    address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+                    abi: ERC20ABI,
+                    functionName: 'approve',
+                    args: ["0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C", BigInt(Value)],
+                });
+            }
         } catch (error) {
             console.log("Error", error);
         }
@@ -66,7 +75,7 @@ function Swap() {
     const swapToken = () => {
         setclear(true);
         // with enums - done
-        // add try catch add errorhandling - done 
+        // add try catch add errorhandling - done
         // Custom Errors from error handling (using view abi decoder)
         // as const in abi
         try {
@@ -263,7 +272,7 @@ function Swap() {
                         <p>Swap</p>
                     </button>
                     :
-                    <button onClick={submitSwap} className='text-white rounded-xl bg-red-600 px-5 py-1'>
+                    <button onClick={approveSwap} className='text-white rounded-xl bg-red-600 px-5 py-1'>
                         Approve Swap
                     </button>
                 }
