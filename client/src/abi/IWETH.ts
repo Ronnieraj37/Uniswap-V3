@@ -1,8 +1,4 @@
-{
-  "_format": "hh-sol-artifact-1",
-  "contractName": "IERC20",
-  "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-  "abi": [
+export const IWethABI = [
     {
       "anonymous": false,
       "inputs": [
@@ -122,6 +118,13 @@
     },
     {
       "inputs": [],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "totalSupply",
       "outputs": [
         {
@@ -186,9 +189,4 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ],
-  "bytecode": "0x",
-  "deployedBytecode": "0x",
-  "linkReferences": {},
-  "deployedLinkReferences": {}
-}
+  ] as const

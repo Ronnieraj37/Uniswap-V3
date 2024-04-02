@@ -1,23 +1,27 @@
 {
-  "name": "client",
+  "name": "uniswap",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.0",
+    "@emotion/styled": "^11.11.5",
     "@headlessui/react": "^1.7.18",
-    "@rainbow-me/rainbowkit": "^2.0.2",
-    "@tanstack/react-query": "^5.28.4",
+    "@rainbow-me/rainbowkit": "^2.0.4",
+    "@tanstack/react-query": "^5.28.9",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "ethers": "^6.11.1",
-    "framer-motion": "^11.0.14",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.93",
+    "@types/react": "^18.2.73",
+    "@types/react-dom": "^18.2.23",
+    "framer-motion": "^11.0.24",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "typescript": "^5.4.3",
     "viem": "^2.8.9",
     "wagmi": "^2.5.7",
     "web-vitals": "^2.1.4"
@@ -47,6 +51,6 @@
     ]
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.3"
   }
 }

@@ -9,55 +9,77 @@ import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react';
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { useReadContract, useWriteContract } from "wagmi";
-import UniswapABI from "../artifacts/contracts/UniSwapV3.sol/UniSwapV3.json";
-import IWethABI from "../artifacts/contracts/IWETH.sol/IWETH.json";
-import ERC20ABI from "../artifacts/@openzeppelin/contracts/token/ERC20/IERC20.sol/IERC20.json";
+import { UniswapABI } from "../abi/UniSwapV3";
+import { IWethABI } from "../abi/IWETH";
+import { ERC20ABI } from "../abi/IERC20";
 import { useAccount } from 'wagmi';
-const Swap = () => {
-    const [tokenIn, settokenIn] = useState("WETH");
-    const [tokenOut, settokenOut] = useState("Uniswap");
+import { zeroAddress } from 'viem';
+
+function Swap() {
+
+    enum Tokens {
+        WETH,
+        Uniswap,
+    };
+
+    const [tokenIn, settokenIn] = useState<number>(Tokens.WETH);
+    const [tokenOut, settokenOut] = useState<number>(Tokens.Uniswap);
     const { address } = useAccount();
-    const [clear, setclear] = useState(false);
-    const { isSuccess: isSuccessApprove, isPending: isPendingApprove, writeContract: writeContractApprove } = useWriteContract();
+    const [clear, setclear] = useState<boolean>(false);
+    const [Value, setValue] = useState<number>(0);
+
     const { isSuccess, isPending, writeContract: writeContractSwap } = useWriteContract();
-    const [Value, setValue] = useState(0);
+    const { isSuccess: isSuccessApprove, isPending: isPendingApprove, writeContract: writeContractApprove } = useWriteContract();
 
     const { data: balanceWeth } = useReadContract({
-        abi: IWethABI.abi,
+        abi: IWethABI,
         address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
         functionName: 'balanceOf',
-        args: [address],
+        args: [address ? address : zeroAddress],
     })
 
     const { data: balanceUniswap } = useReadContract({
-        abi: ERC20ABI.abi,
+        abi: ERC20ABI,
         address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
         functionName: 'balanceOf',
-        args: [address],
+        args: [address ? address : zeroAddress],
     })
 
-    const submitSwap = () => {
+    // error fix here
+    // docs of eslint
+    // const xyz = 10n ** 18n;
+
+    const submitSwap = async () => {
         setclear(false);
-        writeContractApprove({
-            abi: IWethABI.abi,
-            address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
-            functionName: 'approve',
-            args: ["0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C", Value]
-        })
+        try {
+            if (typeof Value !== 'number') throw new Error('Value must be a number');
+            writeContractApprove({
+                address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
+                abi: IWethABI,
+                functionName: 'approve',
+                args: ["0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C", BigInt(Value)],
+            });
+        } catch (error) {
+            console.log("Error", error);
+        }
     }
     const swapToken = () => {
         setclear(true);
-        let input, output;
-        if (tokenIn === "WETH") { input = 0; output = 1 }
-        else {
-            input = 1; output = 0;
+        // with enums - done
+        // add try catch add errorhandling - done 
+        // Custom Errors from error handling (using view abi decoder)
+        // as const in abi
+        try {
+            if (typeof Value !== 'number') throw new Error('Value must be a number');
+            writeContractSwap({
+                abi: UniswapABI,
+                address: "0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C",
+                functionName: 'swapTokenInputSingle',
+                args: [BigInt(Value), BigInt(tokenIn), BigInt(tokenOut)]
+            })
+        } catch (error) {
+            console.log("Error", error);
         }
-        writeContractSwap({
-            abi: UniswapABI.abi,
-            address: "0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C",
-            functionName: 'swapTokenInputSingle',
-            args: [Value, input, output]
-        })
     }
 
     return (
@@ -97,7 +119,7 @@ const Swap = () => {
                         <div className=''>
                             <Menu.Button className="flex z-20 items-center justify-center">
                                 <div className=' py-2 px-4  bg-[black] text-lg shadow-lg ring-1 ring-gray-600 ring-opacity-5 rounded-xl focus:outline-none'>
-                                    {tokenIn}
+                                    {Tokens[tokenIn]}
                                 </div>
                             </Menu.Button>
                         </div>
@@ -116,7 +138,7 @@ const Swap = () => {
                                         {({ active }) => (
                                             <button
                                                 className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn("WETH"); settokenOut("Uniswap") }}
+                                                onClick={() => { settokenIn(Tokens.WETH); settokenOut(Tokens.Uniswap) }}
                                             >
                                                 WETH
                                             </button>
@@ -126,7 +148,7 @@ const Swap = () => {
                                         {({ active }) => (
                                             <button
                                                 className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn("Uniswap"); settokenOut("WETH") }}
+                                                onClick={() => { settokenIn(Tokens.Uniswap); settokenOut(Tokens.WETH) }}
                                             >
                                                 Uniswap
                                             </button>
@@ -149,9 +171,12 @@ const Swap = () => {
                         border="none"
                         focusBorderColor="none"
                         type="number"
-                        onChange={(e) => { setValue(e.target.value) }}
+                        onChange={(e) => {
+                            const num = Number(e.target.value);
+                            setValue(num)
+                        }}
                     />
-                    {tokenIn === "WETH" ?
+                    {tokenIn === 0 ?
                         <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceWeth?.toString()}</div>
                         :
                         <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceUniswap?.toString()}</div>
@@ -172,7 +197,7 @@ const Swap = () => {
                         <div className=''>
                             <Menu.Button className="flex z-10 items-center justify-center">
                                 <div className=' py-2 px-4  bg-red-500 text-lg shadow-lg ring-1 ring-gray-600 ring-opacity-5 rounded-xl focus:outline-none'>
-                                    {tokenOut}
+                                    {Tokens[tokenOut]}
                                 </div>
                             </Menu.Button>
                         </div>
@@ -191,7 +216,7 @@ const Swap = () => {
                                         {({ active }) => (
                                             <button
                                                 className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn("Uniswap"); settokenOut("WETH") }}
+                                                onClick={() => { settokenIn(Tokens.Uniswap); settokenOut(Tokens.WETH) }}
                                             >
                                                 WETH
                                             </button>
@@ -201,7 +226,7 @@ const Swap = () => {
                                         {({ active }) => (
                                             <button
                                                 className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn("WETH"); settokenOut("Uniswap") }}
+                                                onClick={() => { settokenIn(Tokens.WETH); settokenOut(Tokens.Uniswap) }}
                                             >
                                                 Uniswap
                                             </button>
@@ -262,10 +287,6 @@ const Swap = () => {
                     }
                 </div>
             }
-
-
-
-
         </Box>
     )
 }
