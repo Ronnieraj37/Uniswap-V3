@@ -1,4 +1,4 @@
-export const UniswapABI= [
+export const UniswapABI = [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -8,123 +8,55 @@ export const UniswapABI= [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "input",
         "type": "uint256"
       }
     ],
-    "name": "erc20",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "InputOutputSame",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "No_Amount_Given",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "OnlyOwner",
+    "type": "error"
   },
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "token0",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "token1",
-            "type": "address"
-          },
-          {
-            "internalType": "uint24",
-            "name": "fee",
-            "type": "uint24"
-          },
-          {
-            "internalType": "int24",
-            "name": "tickLower",
-            "type": "int24"
-          },
-          {
-            "internalType": "int24",
-            "name": "tickUpper",
-            "type": "int24"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount0Desired",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount1Desired",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount0Min",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount1Min",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "recipient",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "deadline",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct INonfungiblePositionManager.MintParams",
-        "name": "params",
-        "type": "tuple"
-      }
-    ],
-    "name": "increaseLiquidity",
-    "outputs": [
-      {
         "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "liquidity",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount0",
+        "name": "input",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "amount1",
+        "name": "output",
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
-    "type": "function"
+    "name": "OutOfBounds",
+    "type": "error"
   },
   {
     "inputs": [],
-    "name": "nonfungiblePositionManager",
-    "outputs": [
+    "name": "TokenAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "contract INonfungiblePositionManager",
-        "name": "",
+        "internalType": "address",
+        "name": "_tokenAddress",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "name": "addToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -201,6 +133,57 @@ export const UniswapABI= [
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "tokenExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalTokens",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ] as const

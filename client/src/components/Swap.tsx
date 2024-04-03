@@ -3,7 +3,7 @@ import {
     Flex,
     Box,
     Text,
-    Input
+    Input,
 } from "@chakra-ui/react";
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react';
@@ -20,6 +20,7 @@ function Swap() {
     enum Tokens {
         WETH,
         Uniswap,
+        Mock
     };
 
     const [tokenIn, settokenIn] = useState<number>(Tokens.WETH);
@@ -28,66 +29,81 @@ function Swap() {
     const [clear, setclear] = useState<boolean>(false);
     const [Value, setValue] = useState<number>(0);
 
-    const { isSuccess, isPending, writeContract: writeContractSwap } = useWriteContract();
-    const { isSuccess: isSuccessApprove, isPending: isPendingApprove, writeContract: writeContractApprove } = useWriteContract();
+    const tokenAddress = [
+        "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
+        "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+        "0x9a9Fb542C04A90028ed07F9eE7267AceD495573e"
+    ];
+
+    const { isSuccess: isSuccessApprove, isPending: isPendingApprove, writeContractAsync: writeContractApprove } = useWriteContract();
+    const { isSuccess, isPending, writeContractAsync: writeContractSwap } = useWriteContract();
 
     const { data: balanceWeth } = useReadContract({
         abi: IWethABI,
-        address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
+        address: tokenAddress[0] as `0x${string}`,
         functionName: 'balanceOf',
         args: [address ? address : zeroAddress],
+        query: {
+            enabled: address === undefined
+        }
     })
 
     const { data: balanceUniswap } = useReadContract({
         abi: ERC20ABI,
-        address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+        address: tokenAddress[1] as `0x${string}`,
         functionName: 'balanceOf',
         args: [address ? address : zeroAddress],
+        query: {
+            enabled: address === undefined
+        }
     })
+
+    const { data: balanceMockToken } = useReadContract({
+        abi: IWethABI,
+        address: tokenAddress[2] as `0x${string}`,
+        functionName: 'balanceOf',
+        args: [address ? address : zeroAddress],
+        query: {
+            enabled: address === undefined
+        }
+    })
+
 
     // error fix here
     // docs of eslint
-    // const xyz = 10n ** 18n;
+    // const xyz = 10n ** 18n; 
+    // with enums - done
+    // add try catch add errorhandling - done
+    // Custom Errors from error handling (using view abi decoder)
+    // as const in abi
 
     const approveSwap = async () => {
         setclear(false);
         try {
             if (typeof Value !== 'number') throw new Error('Value must be a number');
-            if (tokenIn === 0) {
-                writeContractApprove({
-                    address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
-                    abi: IWethABI,
-                    functionName: 'approve',
-                    args: ["0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C", BigInt(Value)],
-                });
-            } else {
-                writeContractApprove({
-                    address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-                    abi: ERC20ABI,
-                    functionName: 'approve',
-                    args: ["0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C", BigInt(Value)],
-                });
-            }
+            await writeContractApprove({
+                address: tokenAddress[tokenIn] as `0x${string}`,
+                abi: IWethABI,
+                functionName: 'approve',
+                args: ["0x7Ae7E4105f56F3772a01F70E64A8aDef0296b6c7", BigInt(Value)],
+            });
         } catch (error) {
             console.log("Error", error);
         }
     }
-    const swapToken = () => {
+
+    const swapToken = async () => {
         setclear(true);
-        // with enums - done
-        // add try catch add errorhandling - done
-        // Custom Errors from error handling (using view abi decoder)
-        // as const in abi
         try {
             if (typeof Value !== 'number') throw new Error('Value must be a number');
-            writeContractSwap({
+            await writeContractSwap({
                 abi: UniswapABI,
-                address: "0xA07f05F9fc6894f619CE782C1b77fa651e1CaD8C",
+                address: "0x7Ae7E4105f56F3772a01F70E64A8aDef0296b6c7",
                 functionName: 'swapTokenInputSingle',
                 args: [BigInt(Value), BigInt(tokenIn), BigInt(tokenOut)]
             })
         } catch (error) {
-            console.log("Error", error);
+            console.log("Error ", error);
         }
     }
 
@@ -143,26 +159,21 @@ function Swap() {
                         >
                             <Menu.Items className="absolute right-0 z-20 mt-2 text-white w-full border-white border-[1px] border-opacity-10 origin-top-right bg-[black] shadow-lg ring-1 ring-gray-600 ring-opacity-5 rounded-xl focus:outline-none">
                                 <div className="py-1  flex flex-col items-center justify-center">
-                                    <Menu.Item>
-                                        {({ active }) => (
-                                            <button
-                                                className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn(Tokens.WETH); settokenOut(Tokens.Uniswap) }}
-                                            >
-                                                WETH
-                                            </button>
-                                        )}
-                                    </Menu.Item>
-                                    <Menu.Item>
-                                        {({ active }) => (
-                                            <button
-                                                className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn(Tokens.Uniswap); settokenOut(Tokens.WETH) }}
-                                            >
-                                                Uniswap
-                                            </button>
-                                        )}
-                                    </Menu.Item>
+                                    {tokenAddress.map((token, index) => {
+                                        return (
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
+                                                        onClick={() => { settokenIn(index) }}
+                                                    >
+                                                        {Tokens[index]}
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                        )
+                                    })}
+
                                 </div>
                             </Menu.Items>
                         </Transition>
@@ -185,11 +196,9 @@ function Swap() {
                             setValue(num)
                         }}
                     />
-                    {tokenIn === 0 ?
-                        <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceWeth?.toString()}</div>
-                        :
-                        <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceUniswap?.toString()}</div>
-                    }
+                    {tokenIn === 0 && <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceWeth?.toString()}</div>}
+                    {tokenIn === 1 && <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceUniswap?.toString()}</div>}
+                    {tokenIn === 2 && <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceMockToken?.toString()}</div>}
                 </Flex>
 
                 <Flex
@@ -221,26 +230,22 @@ function Swap() {
                         >
                             <Menu.Items className="absolute right-0 z-20 mt-2 text-white w-full border-white border-[1px] border-opacity-10 origin-top-right bg-[black] shadow-lg ring-1 ring-gray-600 ring-opacity-5 rounded-xl focus:outline-none">
                                 <div className="py-1  flex flex-col items-center justify-center">
-                                    <Menu.Item>
-                                        {({ active }) => (
-                                            <button
-                                                className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn(Tokens.Uniswap); settokenOut(Tokens.WETH) }}
-                                            >
-                                                WETH
-                                            </button>
-                                        )}
-                                    </Menu.Item>
-                                    <Menu.Item>
-                                        {({ active }) => (
-                                            <button
-                                                className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
-                                                onClick={() => { settokenIn(Tokens.WETH); settokenOut(Tokens.Uniswap) }}
-                                            >
-                                                Uniswap
-                                            </button>
-                                        )}
-                                    </Menu.Item>
+                                    {tokenAddress.map((token, index) => {
+                                        if (index === tokenIn) return <div></div>
+                                        return (
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <button
+                                                        className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
+                                                        onClick={() => { settokenOut(index) }}
+                                                    >
+                                                        {Tokens[index]}
+                                                    </button>
+                                                )}
+                                            </Menu.Item>
+                                        )
+                                    })}
+
                                 </div>
                             </Menu.Items>
                         </Transition>
