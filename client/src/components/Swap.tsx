@@ -44,7 +44,7 @@ function Swap() {
         functionName: 'balanceOf',
         args: [address ? address : zeroAddress],
         query: {
-            enabled: address === undefined
+            enabled: address !== undefined
         }
     })
 
@@ -54,7 +54,7 @@ function Swap() {
         functionName: 'balanceOf',
         args: [address ? address : zeroAddress],
         query: {
-            enabled: address === undefined
+            enabled: address !== undefined
         }
     })
 
@@ -64,7 +64,7 @@ function Swap() {
         functionName: 'balanceOf',
         args: [address ? address : zeroAddress],
         query: {
-            enabled: address === undefined
+            enabled: address !== undefined
         }
     })
 
