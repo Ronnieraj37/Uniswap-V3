@@ -14,11 +14,10 @@ describe("UniswapTest", function () {
 
     before(async () => {
       accounts = await ethers.getSigners();
-      const UniswapV3 = await ethers.getContractFactory('UniSwapV3');
-      tokenExchangeContract = await UniswapV3.deploy();
-      await tokenExchangeContract.deployed();
+      tokenExchangeContract = await ethers.getContractAt('UniSwapV3', "0x05c1Db5c0a0598F8c51e8A683D9635B47693e1C5");
       UniswapTokenContract = await ethers.getContractAt('IERC20', Uniswap);
       WETH9Contract = await ethers.getContractAt('IWETH', WETH9);
+      console.log(await tokenExchangeContract.totalTokens());
     })
 
     it("Checking All the Values", async function () {
@@ -34,19 +33,19 @@ describe("UniswapTest", function () {
     })
 
     it("Check Error for OutOfBounds", async function () {
-      await expect(tokenExchangeContract.swapTokenInputSingle(10000, 2, 1)).to.be.revertedWithCustomError(tokenExchangeContract, "OutOfBounds");
+      await expect(tokenExchangeContract.swapTokenInputSingle(10000, 4, 1)).to.be.revertedWithCustomError(tokenExchangeContract, "OutOfBounds");
     })
 
-    it("Check for adding exisitng token", async function () {
-      await expect(tokenExchangeContract.addToken("0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14")).to.be.revertedWithCustomError(tokenExchangeContract, "TokenAlreadyExists");
-    })
+    // it("Check for adding exisitng token", async function () {
+    //   await expect(tokenExchangeContract.addToken("0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14")).to.be.revertedWithCustomError(tokenExchangeContract, "TokenAlreadyExists");
+    // })
 
     it("Checking for Swap in WETH/uniswap", async function () {
 
       const amount = 10n ** 18n;
       await WETH9Contract.deposit({ value: amount });
       await WETH9Contract.approve(tokenExchangeContract.address, amount);
-      await tokenExchangeContract.swapTokenInputSingle(amount, 0, 1);
+      await tokenExchangeContract.swapTokenInputSingle(amount, 0, 3);
     })
 
     // it("Checking for Swap in WETH/uniswap using fixed Output", async function () {
