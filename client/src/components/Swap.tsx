@@ -100,7 +100,7 @@ function Swap() {
                 abi: UniswapABI,
                 address: "0x20ca54717354f0837f28148756900bbb6592587D",
                 functionName: 'swapTokenInputSingle',
-                args: [BigInt(0), BigInt(tokenIn), BigInt(tokenOut)]
+                args: [BigInt(Value), BigInt(tokenIn), BigInt(tokenOut)]
             }, {
                 onError(e) {
                     if (e?.name === "ContractFunctionExecutionError") {
