@@ -1,5 +1,5 @@
 import './App.css';
-
+import { useState } from "react"
 import { WagmiProvider } from 'wagmi'
 import { sepolia } from 'wagmi/chains'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -21,14 +21,25 @@ const config = getDefaultConfig({
 });
 
 function App() {
+  const [changePage, setchangePage] = useState<boolean>(false);
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <div className="App">
-            <ConnectButton />
-            <Swap />
-            <AddToken />
+            <div className='flex flex-row text-xl px-5 fixed top-10 left-10'>
+              <button onClick={() => { setchangePage(false) }} className={`mx-4 ${changePage === false ? "underline-offset-2 underline" : ""}`}>Swap</button>
+              <button onClick={() => { setchangePage(true) }} className={`mx-4 ${changePage === true ? "underline-offset-2 underline" : ""}`}>Add Token</button>
+            </div>
+            <div className='fixed top-10 right-10 scale-75'>
+              <ConnectButton />
+            </div>
+            {
+              !changePage ?
+                <Swap />
+                :
+                <AddToken />
+            }
           </div>
         </RainbowKitProvider>
       </QueryClientProvider>

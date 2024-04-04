@@ -7,9 +7,9 @@ export const UniswapABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "input",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "name": "InputOutputSame",
@@ -21,19 +21,13 @@ export const UniswapABI = [
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "input",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "output",
-        "type": "uint256"
-      }
-    ],
-    "name": "OutOfBounds",
+    "inputs": [],
+    "name": "Pool_Fee_Given_Zero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Swap_Pair_Inexistent",
     "type": "error"
   },
   {
@@ -45,13 +39,47 @@ export const UniswapABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "_tokenAddress",
+        "name": "TokenA",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "TokenB",
+        "type": "address"
+      },
+      {
+        "internalType": "uint24",
+        "name": "poolFee",
+        "type": "uint24"
       }
     ],
     "name": "addToken",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "swapFees",
+    "outputs": [
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -75,14 +103,14 @@ export const UniswapABI = [
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "input",
-        "type": "uint256"
+        "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "output",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "name": "swapTokenInputSingle",
@@ -99,14 +127,14 @@ export const UniswapABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "input",
-        "type": "uint256"
+        "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "output",
-        "type": "uint256"
+        "type": "address"
       },
       {
         "internalType": "uint256",
@@ -128,57 +156,6 @@ export const UniswapABI = [
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "tokenAddress",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "tokenExists",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalTokens",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ] as const

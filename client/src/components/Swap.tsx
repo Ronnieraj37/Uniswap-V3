@@ -10,108 +10,96 @@ import { Menu, Transition } from '@headlessui/react';
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { useReadContract, useWriteContract } from "wagmi";
 import { UniswapABI } from "../abi/UniSwapV3";
-import { IWethABI } from "../abi/IWETH";
-import { ERC20ABI } from "../abi/IERC20";
+import { erc20Abi } from 'viem';
 import { useAccount } from 'wagmi';
-import { zeroAddress } from 'viem';
+import { ContractFunctionExecutionError } from "viem"
 
+//react conmponent
 function Swap() {
 
-    enum Tokens {
-        WETH,
-        Uniswap,
-        Mock
-    };
-
-    const [tokenIn, settokenIn] = useState<number>(Tokens.WETH);
-    const [tokenOut, settokenOut] = useState<number>(Tokens.Uniswap);
+    const [tokenIn, settokenIn] = useState<number>(0);
+    const [tokenOut, settokenOut] = useState<number>(1);
     const { address } = useAccount();
-    const [clear, setclear] = useState<boolean>(false);
     const [Value, setValue] = useState<number>(0);
 
     const tokenAddress = [
-        "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
-        "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-        "0x9a9Fb542C04A90028ed07F9eE7267AceD495573e"
+        {
+            name: "WETH",
+            address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14" as `0x${string}`
+        },
+        {
+            name: "Uniswap",
+            address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984" as `0x${string}`
+        },
+        {
+            name: "Mock",
+            address: "0x9a9Fb542C04A90028ed07F9eE7267AceD495573e" as `0x${string}`
+        }
     ];
 
-    const { isSuccess: isSuccessApprove, isPending: isPendingApprove, writeContractAsync: writeContractApprove } = useWriteContract();
-    const { isSuccess, isPending, writeContractAsync: writeContractSwap } = useWriteContract();
+    const { writeContractAsync: writeContractApprove } = useWriteContract();
+    const { data: swapHash, writeContractAsync: writeContractSwap } = useWriteContract();
 
-    const { data: balanceWeth } = useReadContract({
-        abi: IWethABI,
-        address: tokenAddress[0] as `0x${string}`,
+    const { data: balanceOfToken } = useReadContract({
+        abi: erc20Abi,
+        address: tokenAddress[tokenIn].address as `0x${string}`,
         functionName: 'balanceOf',
-        args: [address ? address : zeroAddress],
+        args: [address as `0x${string}`],
         query: {
             enabled: address !== undefined
         }
     })
 
-    const { data: balanceUniswap } = useReadContract({
-        abi: ERC20ABI,
-        address: tokenAddress[1] as `0x${string}`,
-        functionName: 'balanceOf',
-        args: [address ? address : zeroAddress],
+    const { data: approvalAmount } = useReadContract({
+        abi: erc20Abi,
+        address: tokenAddress[tokenIn].address,
+        functionName: 'allowance',
+        args: [address as `0x${string}`, "0x2541885E9DE789758fFec4397A1a1A387a94722d"],
         query: {
             enabled: address !== undefined
         }
     })
 
-    const { data: balanceMockToken } = useReadContract({
-        abi: IWethABI,
-        address: tokenAddress[2] as `0x${string}`,
-        functionName: 'balanceOf',
-        args: [address ? address : zeroAddress],
-        query: {
-            enabled: address !== undefined
-        }
-    })
-
-
-    // error fix here
-    // docs of eslint
-    // const xyz = 10n ** 18n; 
-    // with enums - done
-    // add try catch add errorhandling - done
-    // Custom Errors from error handling (using view abi decoder)
-    // as const in abi
-
-    const approveSwap = async () => {
-        setclear(false);
+    const approveSwap = async (val: number) => {
         try {
-            if (typeof Value !== 'number') throw new Error('Value must be a number');
             await writeContractApprove({
-                address: tokenAddress[tokenIn] as `0x${string}`,
-                abi: IWethABI,
+                address: tokenAddress[tokenIn].address as `0x${string}`,
+                abi: erc20Abi,
                 functionName: 'approve',
-                args: ["0x20ca54717354f0837f28148756900bbb6592587D", BigInt(Value)],
-            });
+                args: ["0x2541885E9DE789758fFec4397A1a1A387a94722d", BigInt(val)],
+            })
         } catch (e) {
             console.log("Error", e);
         }
     }
 
+    const BuyToken = async () => {
+        if (Number(approvalAmount) < Value) {
+            await approveSwap(Value);
+        }
+        else {
+            await swapToken();
+        }
+    }
+
     const swapToken = async () => {
-        setclear(true);
         try {
-            if (typeof Value !== 'number') throw new Error('Value must be a number');
             await writeContractSwap({
                 abi: UniswapABI,
-                address: "0x20ca54717354f0837f28148756900bbb6592587D",
+                address: "0x2541885E9DE789758fFec4397A1a1A387a94722d",
                 functionName: 'swapTokenInputSingle',
-                args: [BigInt(Value), BigInt(tokenIn), BigInt(tokenOut)]
+                args: [BigInt(Value), tokenAddress[tokenIn].address, tokenAddress[tokenOut].address]
             }, {
                 onError(e) {
-                    if (e?.name === "ContractFunctionExecutionError") {
-                        const { abi, cause } = e;
-                        console.log("Error message", cause);
-                        console.log("Error cause", abi);
+                    if (e instanceof ContractFunctionExecutionError) {
+                        console.log(e.shortMessage);
+                        console.log(e.cause);
+                        console.log(e.details);
+                        console.log(e.message);
                     }
                 }
             })
         } catch (e) {
-            console.log("Error ");
         }
     }
 
@@ -132,7 +120,7 @@ function Swap() {
                 <Text
                     color="black"
                     fontWeight="500">
-                    UniSwap-V3
+                    Swap Tokens
                 </Text>
             </Flex>
 
@@ -152,7 +140,7 @@ function Swap() {
                         <div className=''>
                             <Menu.Button className="flex z-20 items-center justify-center">
                                 <div className=' py-2 px-4  bg-[black] text-lg shadow-lg ring-1 ring-gray-600 ring-opacity-5 rounded-xl focus:outline-none'>
-                                    {Tokens[tokenIn]}
+                                    {tokenAddress[tokenIn].name}
                                 </div>
                             </Menu.Button>
                         </div>
@@ -175,7 +163,7 @@ function Swap() {
                                                         className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
                                                         onClick={() => { settokenIn(index) }}
                                                     >
-                                                        {Tokens[index]}
+                                                        {tokenAddress[index].name}
                                                     </button>
                                                 )}
                                             </Menu.Item>
@@ -204,9 +192,7 @@ function Swap() {
                             setValue(num)
                         }}
                     />
-                    {tokenIn === 0 && <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceWeth?.toString()}</div>}
-                    {tokenIn === 1 && <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceUniswap?.toString()}</div>}
-                    {tokenIn === 2 && <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceMockToken?.toString()}</div>}
+                    <div className='w-12 mx-8 flex-wrap text-black text-sm'>Balance: {balanceOfToken?.toString()}</div>
                 </Flex>
 
                 <Flex
@@ -223,7 +209,7 @@ function Swap() {
                         <div className=''>
                             <Menu.Button className="flex z-10 items-center justify-center">
                                 <div className=' py-2 px-4  bg-red-500 text-lg shadow-lg ring-1 ring-gray-600 ring-opacity-5 rounded-xl focus:outline-none'>
-                                    {Tokens[tokenOut]}
+                                    {tokenAddress[tokenOut].name}
                                 </div>
                             </Menu.Button>
                         </div>
@@ -247,7 +233,7 @@ function Swap() {
                                                         className="hover:bg-[#1e1e1e] border-b-[1px] border-white border-opacity-10 w-full  px-4 py-2 text-sm"
                                                         onClick={() => { settokenOut(index) }}
                                                     >
-                                                        {Tokens[index]}
+                                                        {tokenAddress[index].name}
                                                     </button>
                                                 )}
                                             </Menu.Item>
@@ -280,35 +266,16 @@ function Swap() {
             </Box>
 
             <div>
-                {!isSuccess && isSuccessApprove ?
-                    <button onClick={swapToken} className='text-white rounded-xl bg-red-600 px-5 py-1'>
-                        <p>Swap</p>
-                    </button>
-                    :
-                    <button onClick={approveSwap} className='text-white rounded-xl bg-red-600 px-5 py-1'>
-                        Approve Swap
-                    </button>
-                }
+                <button onClick={BuyToken} className='text-white text-xl rounded-xl mt-4 bg-red-600 px-4 py-1'>
+                    Buy
+                </button>
             </div>
-            {!clear ?
-                <div>
-                    {isPendingApprove &&
-                        <p className='text-white rounded-xl mt-10 px-5 py-1'>Approve Pending</p>
-                    }{
-                        isSuccessApprove &&
-                        <p className='text-white rounded-xl mt-10 px-5 py-1'>Approved </p>
-                    }
-                </div>
-                :
-                <div>
-                    {
-                        isPending && <p className='text-white rounded-xl mt-10 px-5 py-1'>Swaping</p>
-                    }
-                    {
-                        isSuccess && <p className='text-white rounded-xl mt-10 px-5 py-1'>Swap Successful</p>
-                    }
-                </div>
-            }
+
+            {swapHash !== undefined && <a href={`https://sepolia.etherscan.io/tx/${swapHash}`} target="_blank" rel="noopener noreferrer">
+                <button className='mt-4 text-lg bg-blue-600 rounded-2xl px-3 py-1 '>
+                    View on Block Explorer
+                </button>
+            </a>}
         </Box>
     )
 }
