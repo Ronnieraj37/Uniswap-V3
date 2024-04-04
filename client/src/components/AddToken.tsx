@@ -19,6 +19,7 @@ function AddToken() {
             });
             settokenAddressA('');
             settokenAddressB('');
+            setpoolPrice(0);
         } catch (error) {
             console.log("Error", error);
         }

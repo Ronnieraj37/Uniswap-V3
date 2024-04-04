@@ -42,7 +42,7 @@ function Swap() {
 
     const { data: balanceOfToken } = useReadContract({
         abi: erc20Abi,
-        address: tokenAddress[tokenIn].address as `0x${string}`,
+        address: tokenAddress[tokenIn].address,
         functionName: 'balanceOf',
         args: [address as `0x${string}`],
         query: {
@@ -63,7 +63,7 @@ function Swap() {
     const approveSwap = async (val: number) => {
         try {
             await writeContractApprove({
-                address: tokenAddress[tokenIn].address as `0x${string}`,
+                address: tokenAddress[tokenIn].address,
                 abi: erc20Abi,
                 functionName: 'approve',
                 args: ["0x2541885E9DE789758fFec4397A1a1A387a94722d", BigInt(val)],
