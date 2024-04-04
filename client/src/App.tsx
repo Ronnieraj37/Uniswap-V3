@@ -10,6 +10,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Swap from './components/Swap';
+import AddToken from "./components/AddToken";
 
 const queryClient = new QueryClient()
 
@@ -27,6 +28,7 @@ function App() {
           <div className="App">
             <ConnectButton />
             <Swap />
+            <AddToken />
           </div>
         </RainbowKitProvider>
       </QueryClientProvider>

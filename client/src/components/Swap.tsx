@@ -85,10 +85,10 @@ function Swap() {
                 address: tokenAddress[tokenIn] as `0x${string}`,
                 abi: IWethABI,
                 functionName: 'approve',
-                args: ["0x7Ae7E4105f56F3772a01F70E64A8aDef0296b6c7", BigInt(Value)],
+                args: ["0x20ca54717354f0837f28148756900bbb6592587D", BigInt(Value)],
             });
-        } catch (error) {
-            console.log("Error", error);
+        } catch (e) {
+            console.log("Error", e);
         }
     }
 
@@ -98,12 +98,20 @@ function Swap() {
             if (typeof Value !== 'number') throw new Error('Value must be a number');
             await writeContractSwap({
                 abi: UniswapABI,
-                address: "0x7Ae7E4105f56F3772a01F70E64A8aDef0296b6c7",
+                address: "0x20ca54717354f0837f28148756900bbb6592587D",
                 functionName: 'swapTokenInputSingle',
-                args: [BigInt(Value), BigInt(tokenIn), BigInt(tokenOut)]
+                args: [BigInt(0), BigInt(tokenIn), BigInt(tokenOut)]
+            }, {
+                onError(e) {
+                    if (e?.name === "ContractFunctionExecutionError") {
+                        const { abi, cause } = e;
+                        console.log("Error message", cause);
+                        console.log("Error cause", abi);
+                    }
+                }
             })
-        } catch (error) {
-            console.log("Error ", error);
+        } catch (e) {
+            console.log("Error ");
         }
     }
 

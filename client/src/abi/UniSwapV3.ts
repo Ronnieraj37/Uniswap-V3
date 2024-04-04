@@ -21,11 +21,6 @@ export const UniswapABI = [
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "OnlyOwner",
-    "type": "error"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",

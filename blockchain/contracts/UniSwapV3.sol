@@ -8,7 +8,6 @@ import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 error No_Amount_Given();
 error InputOutputSame(uint256 input);
 error OutOfBounds(uint256 input, uint256 output);
-error OnlyOwner();
 error TokenAlreadyExists();
 
 contract UniSwapV3 {
@@ -21,16 +20,13 @@ contract UniSwapV3 {
     mapping(address => bool) public tokenExists; // Prevent to add same token
 
     constructor() {
-        owner = msg.sender;
         addToken(0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14);
         addToken(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984);
         addToken(0x9a9Fb542C04A90028ed07F9eE7267AceD495573e);
     }
 
     function addToken(address _tokenAddress) public {
-        if (msg.sender != owner) revert OnlyOwner();
         if (tokenExists[_tokenAddress]) revert TokenAlreadyExists();
-
         tokenAddress[totalTokens] = _tokenAddress;
         tokenExists[_tokenAddress] = true;
         totalTokens++;
